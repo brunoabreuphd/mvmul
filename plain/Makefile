@@ -1,7 +1,7 @@
 FC=gfortran
 
-FFLAGS=-Wextra -Wall -pedantic -m64 
-LIBS=
+FFLAGS=-Wextra -Wall -pedantic -m64
+LIBS=-I/jet/home/babreu/Libraries/hdf5/gcc10.2/include
 LDFLAGS=
 
 objs = mvmul_plain.o

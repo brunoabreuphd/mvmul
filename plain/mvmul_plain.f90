@@ -1,5 +1,6 @@
 program mvmul_plain
         use, intrinsic :: iso_fortran_env
+        use :: hdf5
         implicit none
         integer, parameter :: dp = REAL64 ! double precision
         integer, parameter :: i32 = INT32 ! 32-bit integers
@@ -10,9 +11,9 @@ program mvmul_plain
         integer(i32), parameter :: O=1_i32
 
         ! matrix and vectors
-        real(dp), dimension(M,N) :: mat
-        real(dp), dimension(N,O) :: vec
-        real(dp), dimension(M,O) :: prod
+        real(dp), dimension(:,:), allocatable :: mat
+        real(dp), dimension(:,:), allocatable :: vec
+        real(dp), dimension(:,:), allocatable :: prod
 
         ! support for indexes
         integer(i32) :: i, j, k
@@ -20,6 +21,11 @@ program mvmul_plain
         ! support for timing
         real(dp) :: startT, endT
 
+
+        ! ALLOCATE 
+        allocate(mat(M,N))
+        allocate(vec(N,O))
+        allocate(prod(M,O))
 
 
         ! FILL UP ARRAYS
@@ -41,6 +47,10 @@ program mvmul_plain
         call cpu_time(endT)
 
         write(*,*) 'MAT-VEC multiplication took: ', (endT-startT), ' s'
+
+        deallocate(mat)
+        deallocate(vec)
+        deallocate(prod)
 
 
 end program mvmul_plain
