@@ -21,6 +21,18 @@ program mvmul_plain
         ! support for timing
         real(dp) :: startT, endT
 
+        ! HDF5 parameters
+        integer(hid_t) :: file_id       ! File identifier
+        integer(hid_t) :: dset_id       ! Dataset identifier
+        integer(hid_t) :: dataspace     ! Dataspace idenfitier
+        integer(hid_t) :: memspace      ! Memory dataspace identifier
+        integer(hid_t) :: crp_list      ! Dataset creation property identifier
+        integer(i32) :: error         ! Error checks
+        ! open HDF5 file
+        call h5open_f(error)
+
+
+        call h5close_f(error)
 
         ! ALLOCATE 
         allocate(mat(M,N))
@@ -33,6 +45,7 @@ program mvmul_plain
         call random_seed()
         call random_number(mat)
         call random_number(vec)
+
 
 
         ! MAT-VEC MULTIPLICATION
