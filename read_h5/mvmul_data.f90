@@ -11,4 +11,8 @@ program mvmul_data
                 write(*,*) vec(i,1), prod(i,1), mat(i,1)
         enddo
 
+        deallocate(mat)
+        deallocate(vec)
+        deallocate(prod)
+
 end program mvmul_data
