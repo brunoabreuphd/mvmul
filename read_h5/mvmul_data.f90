@@ -1,0 +1,14 @@
+program mvmul_data
+        use mvmul_h5
+        implicit none
+
+        double precision, dimension(:,:), allocatable :: mat, vec, prod
+        integer :: i
+
+        call read_mvmul_data(mat,vec,prod)
+
+        do i = 1, 10
+                write(*,*) vec(i,1), prod(i,1), mat(i,1)
+        enddo
+
+end program mvmul_data
