@@ -6,8 +6,8 @@ program mvmul_plain
         integer, parameter :: i32 = INT32 ! 32-bit integers
 
         ! matrix MxN, vector NxO=1 (easily extendable to matmul)
-        integer(i32), parameter :: M=10_i32
-        integer(i32), parameter :: N=10_i32
+        integer(i32), parameter :: M=1000_i32
+        integer(i32), parameter :: N=1000_i32
         integer(i32), parameter :: O=1_i32
 
         ! matrix and vectors
