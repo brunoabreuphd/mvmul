@@ -8,6 +8,7 @@ program mvmul_intelmkl
         integer, parameter :: dp = REAL64 ! double precision
         integer, parameter :: i32 = INT32 ! 32-bit integer
 
+        real(dp) :: acc_diff, abs_diff
         real(dp), dimension(:,:), allocatable :: mat, vec, prod  ! arrays from h5 file
         real(dp), dimension(:,:), allocatable :: prod_mkl        ! product from mkl
         integer, dimension(2) :: shp_mat, shp_vec, shp_prod
@@ -32,15 +33,20 @@ program mvmul_intelmkl
         call cpu_time(endT)
         write(*,*) 'MKL DGEMV took: ', (endT-startT), ' s'
 
+        ! compare
         flag = 0
+        acc_diff = 0.0_dp
         do i = 1, N
-                if (prod(i,1) /=  prod_mkl(i,1)) then
-                        write(*,*) "Products are not the same!", prod(i,1), prod_mkl(i,1)
+                abs_diff = abs(prod(i,1) - prod_mkl(i,1))
+                if (abs_diff /=  0.0_dp) then
+                        acc_diff = acc_diff + abs_diff
                         flag = 1
                 endif
         enddo
         if (flag == 0) then
                 write(*,*) "Products are equal!"
+        else
+                write(*,*) "Products are not equal. Accumulated difference (absolute values) is: ", acc_diff
         endif
 
         deallocate(mat)
