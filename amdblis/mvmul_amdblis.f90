@@ -31,6 +31,7 @@ program mvmul_amdblis
         call cpu_time(endT)
         write(*,*) 'BLIS DGEMV took: ', (endT-startT), ' s'
 
+        ! compare results
         flag = 0
         acc_diff = 0.0_dp
         do i = 1, N
@@ -43,7 +44,7 @@ program mvmul_amdblis
         if (flag == 0) then
                 write(*,*) "Products are equal!"
         else
-                write(*,*) "Products are not equal. Acc diff is: ", acc_diff
+                write(*,*) "Products are not equal. Accumulated difference (absolute values) is: ", acc_diff
         endif
 
         deallocate(mat)
