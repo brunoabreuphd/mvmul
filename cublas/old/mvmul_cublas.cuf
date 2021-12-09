@@ -1,0 +1,59 @@
+program mvmul_cublas
+        use iso_fortran_env
+        use cublas
+        implicit none
+
+        integer, parameter :: dp = REAL64 ! double precision real
+        integer, parameter :: i32 = INT32 ! 32-bit integer
+      
+        real(dp), allocatable :: A(:,:), x(:), y(:)
+        real(dp), device, allocatable :: A_d(:,:), x_d(:), y_d(:)
+        real(dp) :: alpha, beta
+        integer(i32) :: m, n, lda, incx, incy
+
+        m = 4
+        n = 2
+        alpha = 1.0_dp
+        beta = 0.0_dp
+        incx = 1
+        incy = 1
+        lda = m
+
+        ! allocate arrays on the host
+        allocate(A(m,n))
+        allocate(x(n))
+        allocate(y(m))
+
+        ! allocate arrays on the device
+        allocate(A_d(m,n))
+        allocate(x_d(n))
+        allocate(y_d(m))
+
+        ! initiallize arrays on host
+        A = 1.0_dp
+        x = 2.0_dp
+        y = 0.0_dp
+
+        ! copy arrays to device
+        A_d = a
+        x_d = x
+        y_d = y
+
+        print *, "Matrix A:"
+        print *, a
+
+        print *, "Vector x:"
+        print *, x
+
+        call cuda_mvmul('N', m, n, alpha, A_d, lda, x_d, incx, beta, y_d, incy)
+
+        ! copy result back
+        y = y_d
+        print *, "Resulting vector y:"
+        print *, y
+
+        ! clean up
+        deallocate(A,x,y)
+        deallocate(A_d,x_d,y_d)
+
+end program mvmul_cublas
