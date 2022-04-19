@@ -1,7 +1,7 @@
-FC=gfortran
+FC=nvfortran
 
-FFLAGS=-Wextra -Wall -pedantic -m64
-HDF5ROOT=/jet/home/babreu/Libraries/hdf5/gcc10.2
+FFLAGS=
+HDF5ROOT=/u/babreu/Libraries/hdf5/nvhpc
 INCLUDE=-I$(HDF5ROOT)/include
 LDFLAGS=-L$(HDF5ROOT)/lib
 LIBS=-lhdf5 -lhdf5_fortran
