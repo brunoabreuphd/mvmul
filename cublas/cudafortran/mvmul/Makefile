@@ -1,4 +1,4 @@
-FC=nvfortran   # module load nvhpc/21.7 on Bridges-2
+FC=nvfortran   # module load nvhpc/22.2 on Delta
 
 FFLAGS=-Mcuda
 
@@ -9,7 +9,7 @@ H5LDFLAGS	=-L${HDF5ROOT}/lib
 H5LIBS		=-lhdf5 -lhdf5_fortran
 
 
-exec = mvmul_cudafort
+exec = mvmul_cudafort.exe
 
 $(exec): mvmul_h5.o mvmul_cudafort.o
 	$(FC) $(FFLAGS) -o $@ $^ ${H5LDFLAGS} ${H5LIBS}
