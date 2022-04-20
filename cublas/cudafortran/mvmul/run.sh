@@ -1,5 +1,8 @@
 #!/bin/bash
 
-module load nvhpc/20.11
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/jet/home/babreu/Libraries/hdf5/pgi20.11/lib
-./mvmul_cudafort
+module purge
+module load nvhpc/22.2
+module load openmpi/4.1.2
+module load hdf5/1.13.1
+
+./mvmul_cudafort.exe
