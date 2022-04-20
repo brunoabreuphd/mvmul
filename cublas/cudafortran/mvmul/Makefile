@@ -3,7 +3,7 @@ FC=nvfortran   # module load nvhpc/21.7 on Bridges-2
 FFLAGS=-Mcuda
 
 # HDF5 stuff
-HDF5ROOT	=/jet/home/babreu/Libraries/hdf5/pgi20.11
+HDF5ROOT	=/sw/spack/delta-2022-03/apps/hdf5/1.13.1-nvhpc-22.2-vz2z7bn
 H5INCLUDE	=-I${HDF5ROOT}/include
 H5LDFLAGS	=-L${HDF5ROOT}/lib
 H5LIBS		=-lhdf5 -lhdf5_fortran
