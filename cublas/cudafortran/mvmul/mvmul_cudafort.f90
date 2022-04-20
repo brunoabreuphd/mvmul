@@ -129,6 +129,12 @@ program mvmul_cudafort
                 write(*,*) "Products are not equal. Accumulated difference (absloute values) is: ", acc_diff
         endif
 
+        ! write timings to file
+        open(unit=12, file="timing.dat", action="write", status="new")
+        do i = 1, samples
+                write(12,*) times(i)
+        enddo
+        close(12)
 
         ! clean up
         deallocate(mat, vec, prod, prod_cublas)
