@@ -4,34 +4,41 @@ program mvmul_cudafort
         use mvmul_h5
         implicit none
 
-        ! cuda and cublas dgemv variables
-        ! HOST
+        !! variables_d refers to the device address of variable !!
+        ! dgemv variables
         integer :: t                    ! transposition
         integer :: lda, incx, incy      ! leading dimension of matrix, increments
         integer :: m, n                 ! indexes of matrix
         real(8) :: alpha, beta             ! scalars for y -> alpha*A*x + beta*y
-        ! DEVICE
         real(8), device :: alpha_d, beta_d
-        ! helpers
+
+        ! cuda/cublas variables
         type(cudaEvent) :: startEvent, stopEvent
-        integer :: istat
-        real :: time
-        ! cublas handle
-        type(cublasHandle) :: handle 
+        type(cublasHandle) :: handle
 
-
-        ! variables from previous mvmul code
+        ! variables from mvmul plain code
         real(8) :: acc_diff, abs_diff
         real(8), dimension(:,:), allocatable :: mat, vec, prod  ! arrays from h5 file
-        real(8), dimension(:,:), allocatable :: prod_cublas        ! product from cublas
-        integer, dimension(2) :: shp_mat, shp_vec, shp_prod
-        integer :: D, E, F
-        integer :: i
-        integer :: flag
+        real(8), dimension(:,:), allocatable :: prod_cublas     ! product from cublas
+        integer, dimension(2) :: shp_mat, shp_vec, shp_prod     ! shape of arrays
 
         ! device arrays
         real(8), device, dimension(:,:), allocatable :: mat_d, vec_d, prod_d
 
+        ! timing variables
+        integer, parameter :: samples = 100     ! number of times we are going to sample cuBLAS
+        real(8), dimension(:), allocatable :: times     ! keep track of each execution time
+
+        ! int/double helpers
+        integer :: D, E, F
+        integer :: i
+        integer :: flag
+        integer :: istat
+        real :: time
+
+        !!!!!!!!!!!
+        !! START !!
+        !!!!!!!!!!!
 
         ! read data from h5 file and allocate host arrays
         call read_mvmul_data(mat,vec,prod)
@@ -43,7 +50,7 @@ program mvmul_cudafort
         E = shp_mat(2)
         F = shp_vec(2)
 
-        ! making the translation into cublasDgemv variables
+        ! translation into cublasDgemv variables
         prod_cublas = 0.0
         m = D
         n = E
@@ -54,7 +61,6 @@ program mvmul_cudafort
         beta = 0.0
         t = 0
         
-
         ! allocate device arrays
         allocate(mat_d(D,E))
         allocate(vec_d(E,F))
@@ -66,10 +72,10 @@ program mvmul_cudafort
                 write(*,*) '** cublas handle creation failed **'
                 stop
         endif
+
         ! create cuda events
         istat = cudaEventCreate(startEvent)
         istat = cudaEventCreate(stopEvent)
-
 
         ! transfer everything to device
         mat_d = mat
@@ -78,22 +84,35 @@ program mvmul_cudafort
         alpha_d = alpha
         beta_d = beta
         
-        ! call cublas
-        istat = cudaEventRecord(startEvent,0)
+        ! "warm up" the device with one cublas call
         istat = cublasDgemv_v2(handle, t, m, n, alpha_d, mat_d, lda, vec_d(:,1), incx, beta_d, prod_d(:,1), incy)
-        istat = cudaEventRecord(stopEvent, 0)
-        istat = cudaEventSynchronize(stopEvent)
-        istat = cudaEventElapsedTime(time, startEvent, stopEvent)
         if (istat /= 0) then
-                write(*,*) '** cublas call failed **'
+                write(*,*) '** cublas call failed at warmup**'
                 stop
         endif
-        write(*,*) 'CUBLAS DGEMV took: ', time, ' ms'
+
+        ! allocate timing array
+        allocate(times(samples))
+
+        ! call cublas several times and time it
+        do i = 1, samples
+                istat = cudaEventRecord(startEvent,0)
+                istat = cublasDgemv_v2(handle, t, m, n, alpha_d, mat_d, lda, vec_d(:,1), incx, beta_d, prod_d(:,1), incy)
+                istat = cudaEventRecord(stopEvent, 0)
+                istat = cudaEventSynchronize(stopEvent)
+                istat = cudaEventElapsedTime(time, startEvent, stopEvent)
+                if (istat /= 0) then
+                        write(*,*) '** cublas call failed **'
+                        stop
+                endif
+                times(i) = time
+        enddo
+
+        write(*,*) 'CUBLAS DGEMV took, on average: ', sum(times)/samples, ' ms'
 
         ! transfer result to host
         prod_cublas = prod_d
         
-
         ! compare results
         flag = 0
         acc_diff = 0.0
@@ -114,6 +133,7 @@ program mvmul_cudafort
         ! clean up
         deallocate(mat, vec, prod, prod_cublas)
         deallocate(mat_d, vec_d, prod_d)
+        deallocate(times)
         istat = cublasDestroy(handle)
 
 end program mvmul_cudafort
